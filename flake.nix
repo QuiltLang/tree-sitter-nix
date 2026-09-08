@@ -108,11 +108,19 @@
 
       githubActions = nix-github-actions.lib.mkGithubMatrix {
         # Inherit GHA actions matrix from a subset of platforms supported by hosted runners
+        #
+        # The Linux entries differ from upstream, which targets Namespace.so's
+        # hosted runners (`nscloud-ubuntu-24.04-*`). QuiltLang does not
+        # subscribe to Namespace, so on this fork those jobs have no runner to
+        # land on: they queue until GitHub cancels them, and every Linux check
+        # reports as `cancelled` rather than passing or failing. Pointing them
+        # at GitHub's own hosted runners is what makes this fork's CI mean
+        # anything. Revert if QuiltLang ever gets a Namespace account.
         platforms = {
-          "x86_64-linux" = "nscloud-ubuntu-24.04-amd64-4x16";
+          "x86_64-linux" = "ubuntu-latest";
           "x86_64-darwin" = "macos-15-intel";
           "aarch64-darwin" = "macos-latest";
-          "aarch64-linux" = "nscloud-ubuntu-24.04-arm64-4x16";
+          "aarch64-linux" = "ubuntu-24.04-arm";
         };
         checks = {
           inherit (self.checks) x86_64-linux;
